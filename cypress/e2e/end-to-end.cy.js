@@ -1,3 +1,7 @@
+/// <reference types="cypress"/>
+import { faker } from '@faker-js/faker';
+import CadastroPage from '../support/pages/cadastro-page';
+
 describe('Testes End To End do fluxo de cadastro e login', () => {
 
     /* 
@@ -24,5 +28,30 @@ describe('Testes End To End do fluxo de cadastro e login', () => {
 
     it('Deve fazer o cadastro e validar o login com o usuário cadastrado', () => {
         // Criar todo o fluxo aqui dentro deste único "it"
+
+        // Utilizando o faker para gerar dados para cadastro
+        let nome = faker.person.fullName();
+        let email = faker.internet.email();
+        let senha = 'Senha@123';
+        let telefone = '85999999978';
+
+        // Utilizando CadastroPage para preencher o formulário de cadastro
+        CadastroPage.visitarPaginaCadastro();
+        CadastroPage.preencherCadastro(nome, email, telefone, senha, senha);
+
+        // Validando cadastro com URL incluindo "dashboard"
+        cy.url().should('include', 'dashboard');
+
+        // Realizando login com as mesmas credenciais cadastradas acima
+        cy.visit('login.html');
+        cy.get('#email').type(email);
+        cy.get('#password').type(senha);
+        cy.get('#login-btn').click();
+
+        // Validando login com URL incluindo "dashboard" e verificando se o nome do usuário aparece na interface
+        cy.url().should('include', 'dashboard');
+        cy.get('#user-name').should('contain', nome);
+
+        
     });
 });
